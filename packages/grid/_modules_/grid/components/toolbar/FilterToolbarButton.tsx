@@ -10,8 +10,7 @@ import {
 } from '../../hooks/features/filter/filterSelector';
 import { preferencePanelStateSelector } from '../../hooks/features/preferencesPanel/preferencePanelSelector';
 import { PreferencePanelsValue } from '../../hooks/features/preferencesPanel/preferencesPanelValue';
-import { useIcons } from '../../hooks/utils/useIcons';
-import { optionsSelector } from '../../hooks/utils/useOptionsProp';
+import { optionsSelector } from '../../hooks/utils/optionsSelector';
 import { ApiContext } from '../api-context';
 
 export const FilterToolbarButton: React.FC<{}> = () => {
@@ -46,8 +45,6 @@ export const FilterToolbarButton: React.FC<{}> = () => {
     );
   }, [apiRef, preferencePanel.open, counter, activeFilters, lookup]);
 
-  const icons = useIcons();
-  const filterIconElement = React.createElement(icons.OpenFilterButtonIcon!, {});
   const toggleFilter = React.useCallback(() => {
     const { open, openedPanelValue } = preferencePanel;
     if (open && openedPanelValue === PreferencePanelsValue.filters) {
@@ -57,19 +54,22 @@ export const FilterToolbarButton: React.FC<{}> = () => {
     }
   }, [apiRef, preferencePanel]);
 
+  // Disable the button if the corresponding is disabled
   if (options.disableColumnFilter) {
     return null;
   }
 
+  const OpenFilterButtonIcon = apiRef!.current.components!.OpenFilterButtonIcon!;
   return (
     <Tooltip title={tooltipContentNode} enterDelay={1000}>
       <Button
         onClick={toggleFilter}
+        size="small"
         color="primary"
         aria-label={apiRef!.current.getLocaleText('toolbarFiltersLabel')}
         startIcon={
           <Badge badgeContent={counter} color="primary">
-            {filterIconElement}
+            <OpenFilterButtonIcon />
           </Badge>
         }
       >

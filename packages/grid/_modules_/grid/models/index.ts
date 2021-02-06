@@ -13,4 +13,7 @@ export * from './params';
 export * from './cellClass';
 export * from './cell';
 export * from './api';
-export * from './gridComponentOverridesProp';
+export * from './gridIconSlotsComponent';
+export * from './gridSlotsComponent';
+export * from './gridSlotsComponentsProps';
+export * from './density';

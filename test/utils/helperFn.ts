@@ -38,8 +38,8 @@ export async function sleep(duration: number) {
   });
 }
 
-export function getColumnValues() {
-  return Array.from(document.querySelectorAll('[role="cell"][aria-colindex="0"]')).map(
+export function getColumnValues(colIndex: number = 0) {
+  return Array.from(document.querySelectorAll(`[role="cell"][aria-colindex="${colIndex}"]`)).map(
     (node) => node!.textContent,
   );
 }
@@ -48,4 +48,22 @@ export function getColumnHeaders() {
   return Array.from(document.querySelectorAll('[role="columnheader"]')).map(
     (node) => node!.textContent,
   );
+}
+
+export function getCell(rowIndex: number, colIndex: number): HTMLElement {
+  const cell = document.querySelector(
+    `[role="cell"][data-rowindex="${rowIndex}"][aria-colindex="${colIndex}"]`,
+  );
+  if (cell == null) {
+    throw new Error(`Cell ${rowIndex} ${colIndex} not found`);
+  }
+  return cell as HTMLElement;
+}
+
+export function getRow(rowIndex: number): HTMLElement {
+  const row = document.querySelector(`[role="row"][data-rowindex="${rowIndex}"]`);
+  if (row == null) {
+    throw new Error(`Row ${rowIndex} not found`);
+  }
+  return row as HTMLElement;
 }

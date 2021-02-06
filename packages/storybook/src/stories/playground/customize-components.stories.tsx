@@ -1,6 +1,21 @@
+import Button from '@material-ui/core/Button';
 import * as React from 'react';
 import { Story, Meta } from '@storybook/react';
-import { ColDef, XGrid, GridOverlay, GridFooter, XGridProps } from '@material-ui/x-grid';
+import {
+  ColDef,
+  XGrid,
+  GridOverlay,
+  GridFooterContainer,
+  XGridProps,
+  HideColMenuItem,
+  ColumnMenuProps,
+  BaseComponentProps,
+  GridColumnMenu,
+  PanelProps,
+  PreferencesPanel,
+  GridFooter,
+  GridToolbar,
+} from '@material-ui/x-grid';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import CodeIcon from '@material-ui/icons/Code';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -19,13 +34,7 @@ export default {
       page: null,
     },
   },
-  decorators: [
-    (StoryFn) => (
-      <div className="grid-container">
-        <StoryFn />
-      </div>
-    ),
-  ],
+  decorators: [(StoryFn) => <StoryFn />],
 } as Meta;
 
 const columns: ColDef[] = [
@@ -47,8 +56,12 @@ const rows = [
 const defaultData = { columns, rows };
 
 const Template: Story<XGridProps> = (args) => {
-  const data = useData(2000, 200);
-  return <XGrid {...data} {...args} />;
+  const data = useData(500, 50);
+  return (
+    <div className="grid-container">
+      <XGrid {...data} {...args} />
+    </div>
+  );
 };
 
 function LoadingComponent() {
@@ -66,7 +79,7 @@ Loading.args = {
   ...defaultData,
   loading: true,
   components: {
-    loadingOverlay: LoadingComponent,
+    LoadingOverlay: LoadingComponent,
   },
 };
 
@@ -85,7 +98,7 @@ NoRows.args = {
   rows: [],
   columns,
   components: {
-    noRowsOverlay: NoRowsComponent,
+    NoRowsOverlay: NoRowsComponent,
   },
 };
 
@@ -100,20 +113,21 @@ function SortedAscending() {
 export const Icons = Template.bind({});
 Icons.args = {
   ...defaultData,
-  icons: {
-    ColumnSortedDescending: SortedDescending,
-    ColumnSortedAscending: SortedAscending,
+  components: {
+    ColumnSortedDescendingIcon: SortedDescending,
+    ColumnSortedAscendingIcon: SortedAscending,
   },
 };
 
-function PaginationComponent(props) {
-  const { pagination } = props;
+function PaginationComponent(props: BaseComponentProps & { color?: 'primary' }) {
+  const { state, api } = props;
   return (
     <Pagination
       className="my-custom-pagination"
-      page={pagination.page}
-      count={pagination.pageCount}
-      onChange={(event, value) => pagination.setPage(value)}
+      page={state.pagination.page}
+      color={props.color}
+      count={state.pagination.pageCount}
+      onChange={(event, value) => api.current.setPage(value)}
     />
   );
 }
@@ -123,42 +137,48 @@ CustomPagination.args = {
   pagination: true,
   pageSize: 50,
   components: {
-    pagination: PaginationComponent,
+    Pagination: PaginationComponent,
+  },
+  componentsProps: {
+    pagination: { color: 'primary' },
   },
 };
 
 function FooterComponent(props) {
-  const { pagination } = props;
+  const { state, api } = props;
   return (
-    <GridFooter className="my-custom-footer">
-      <span style={{ display: 'flex', alignItems: 'center' }}>
+    <GridFooterContainer className="my-custom-footer">
+      <span style={{ display: 'flex', alignItems: 'center', background: props.color }}>
         This is my custom footer and pagination here!{' '}
       </span>
       <Pagination
         className="my-custom-pagination"
-        page={pagination.page}
-        count={pagination.pageCount}
-        onChange={(event, value) => pagination.setPage(value)}
+        page={state.pagination.page}
+        count={state.pagination.pageCount}
+        onChange={(event, value) => api.current.setPage(value)}
       />
-    </GridFooter>
+    </GridFooterContainer>
   );
 }
 
 export const CustomFooter = Template.bind({});
 CustomFooter.args = {
   pagination: true,
-  hideFooterPagination: true,
-  hideFooter: true,
   pageSize: 33,
   components: {
-    footer: FooterComponent,
+    Footer: FooterComponent,
+  },
+  componentsProps: {
+    footer: { color: 'blue' },
   },
 };
 
 function FooterComponent2(props) {
-  const { pagination } = props;
+  const { state } = props;
 
-  return <div className="footer my-custom-footer"> I counted {pagination.rowCount} row(s) </div>;
+  return (
+    <div className="footer my-custom-footer"> I counted {state.pagination.rowCount} row(s) </div>
+  );
 }
 
 function CustomHeader(props) {
@@ -175,8 +195,11 @@ HeaderAndFooter.args = {
   hideFooterPagination: true,
   pageSize: 33,
   components: {
-    header: CustomHeader,
-    footer: FooterComponent2,
+    Header: CustomHeader,
+    Footer: FooterComponent2,
+  },
+  componentsProps: {
+    header: { color: 'primary' },
   },
 };
 
@@ -284,14 +307,162 @@ StyledColumns.args = {
   ],
 };
 
-function ToolbarComponent() {
-  return <div>This is my custom toolbar!</div>;
+function ToolbarComponent(props: any) {
+  return <div style={{ background: props.color }}>This is my custom toolbar!</div>;
 }
 
 export const CustomToolbar = Template.bind({});
 CustomToolbar.args = {
-  pageSize: 33,
   components: {
-    header: ToolbarComponent,
+    Header: ToolbarComponent,
+  },
+  componentsProps: {
+    header: { color: 'red' },
+  },
+};
+
+function ColumnMenuComponent(props: ColumnMenuProps & { color?: string }) {
+  if (props.currentColumn.field === 'id') {
+    return <HideColMenuItem onClick={props.hideMenu} column={props.currentColumn!} />;
+  }
+  if (props.currentColumn.field === 'currencyPair') {
+    return (
+      <div style={{ background: props.color || '#ccc' }}>This is my currency pair column Menu!</div>
+    );
+  }
+  return <GridColumnMenu hideMenu={props.hideMenu} currentColumn={props.currentColumn} />;
+}
+
+export const CustomColumnMenu = Template.bind({});
+CustomColumnMenu.args = {
+  components: {
+    ColumnMenu: ColumnMenuComponent,
+  },
+  componentsProps: {
+    columnMenu: { color: 'red' },
+  },
+};
+
+export const UndefinedAllComponent = Template.bind({});
+UndefinedAllComponent.args = {
+  components: {
+    ColumnMenu: undefined,
+    Pagination: undefined,
+    Footer: undefined,
+    Header: undefined,
+    ErrorOverlay: undefined,
+    NoRowsOverlay: undefined,
+    LoadingOverlay: undefined,
+  },
+};
+
+function MyIcon1() {
+  // eslint-disable-next-line jsx-a11y/accessible-emoji
+  return <span role="img">✅</span>;
+}
+
+function MyIcon2() {
+  // eslint-disable-next-line jsx-a11y/accessible-emoji
+  return <span role="img">💥</span>;
+}
+
+export function DynamicIconUpdate() {
+  const data = useData(2000, 200);
+  const [icon, setIcon] = React.useState<any>(() => MyIcon1);
+
+  return (
+    <React.Fragment>
+      <div>
+        <Button
+          component="button"
+          color="primary"
+          variant="outlined"
+          onClick={() => {
+            setIcon(() => MyIcon2);
+          }}
+        >
+          Change Icon
+        </Button>
+        <Button
+          component="button"
+          color="primary"
+          variant="outlined"
+          onClick={() => {
+            setIcon(undefined);
+          }}
+        >
+          Clear icon
+        </Button>
+      </div>
+      <div className="grid-container">
+        <XGrid
+          {...data}
+          components={{
+            DensityStandardIcon: icon,
+            Toolbar: GridToolbar,
+          }}
+          showToolbar
+        />
+      </div>
+    </React.Fragment>
+  );
+}
+
+function CustomFilterPanel(props: { bg?: string } & BaseComponentProps) {
+  return (
+    <div style={{ width: 500, height: 100, background: props.bg, color: 'white' }}>
+      My Custom Filter Panel
+    </div>
+  );
+}
+function CustomColumnsPanel(props: { bg?: string } & BaseComponentProps) {
+  return (
+    <div style={{ width: 500, height: 300, background: props.bg }}>My Custom Columns Panel</div>
+  );
+}
+export const CustomFilterColumnsPanels = Template.bind({});
+CustomFilterColumnsPanels.args = {
+  showToolbar: true,
+  components: {
+    FilterPanel: CustomFilterPanel,
+    ColumnsPanel: CustomColumnsPanel,
+    Toolbar: GridToolbar,
+  },
+  componentsProps: {
+    filterPanel: { bg: 'blue' },
+    columnsPanel: { bg: 'red' },
+  },
+};
+function CustomPanelComponent(props: BaseComponentProps & PanelProps) {
+  if (!props.open) {
+    return null;
+  }
+
+  return <div style={{ maxHeight: 500, overflow: 'auto', display: 'flex' }}>{props.children}</div>;
+}
+export const CustomPanel = Template.bind({});
+CustomPanel.args = {
+  showToolbar: true,
+  components: {
+    Panel: CustomPanelComponent,
+    Toolbar: GridToolbar,
+  },
+};
+
+function FooterWithPanel() {
+  return (
+    <React.Fragment>
+      <GridFooter />
+      <PreferencesPanel />
+    </React.Fragment>
+  );
+}
+export const CustomPanelInFooter = Template.bind({});
+CustomPanelInFooter.args = {
+  showToolbar: true,
+  components: {
+    Panel: CustomPanelComponent,
+    Footer: FooterWithPanel,
+    Toolbar: GridToolbar,
   },
 };

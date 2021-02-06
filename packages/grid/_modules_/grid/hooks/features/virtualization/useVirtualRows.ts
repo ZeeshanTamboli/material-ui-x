@@ -5,8 +5,9 @@ import { VirtualizationApi } from '../../../models/api/virtualizationApi';
 import { CellIndexCoordinates } from '../../../models/cell';
 import { ScrollParams } from '../../../models/params/scrollParams';
 import { RenderContextProps, RenderRowProps } from '../../../models/renderContextProps';
-import { isEqual } from '../../../utils/utils';
+import { isDeepEqual } from '../../../utils/utils';
 import { useEnhancedEffect } from '../../../utils/material-ui-utils';
+import { optionsSelector } from '../../utils/optionsSelector';
 import { columnsMetaSelector, visibleColumnsSelector } from '../columns/columnsSelector';
 import { GridState } from '../core/gridState';
 import { useGridSelector } from '../core/useGridSelector';
@@ -18,7 +19,6 @@ import { useApiEventHandler } from '../../root/useApiEventHandler';
 import { useApiMethod } from '../../root/useApiMethod';
 import { useNativeEventListener } from '../../root/useNativeEventListener';
 import { useLogger } from '../../utils/useLogger';
-import { optionsSelector } from '../../utils/useOptionsProp';
 import { useScrollFn } from '../../utils/useScrollFn';
 import { InternalRenderingState } from './renderingState';
 import { useVirtualColumns } from './useVirtualColumns';
@@ -48,7 +48,7 @@ export const useVirtualRows = (
       let stateChanged = false;
       setGridState((oldState) => {
         const currentRenderingState = { ...oldState.rendering, ...state };
-        if (!isEqual(oldState.rendering, currentRenderingState)) {
+        if (!isDeepEqual(oldState.rendering, currentRenderingState)) {
           stateChanged = true;
           return { ...oldState, rendering: currentRenderingState };
         }

@@ -1,93 +1,80 @@
 import * as React from 'react';
-import { ComponentProps, ApiRef, GridComponentOverridesProp, RootContainerRef } from '../../models';
-import { ErrorMessage } from '../../components/ErrorMessage';
-import { LoadingOverlay } from '../../components/LoadingOverlay';
-import { NoRowMessage } from '../../components/NoRowMessage';
-import { optionsSelector } from '../utils/useOptionsProp';
-import { visibleColumnsSelector } from './columns/columnsSelector';
-import { useGridSelector } from './core/useGridSelector';
-import { paginationSelector } from './pagination/paginationSelector';
-import { unorderedRowModelsSelector } from './rows/rowsSelector';
+import { ApiRef } from '../../models/api/apiRef';
+import { ApiRefComponentsProperty } from '../../models/api/componentsApi';
+import { DEFAULT_SLOTS_COMPONENTS, GridSlotsComponent } from '../../models/gridSlotsComponent';
+import { GridSlotsComponentsProps } from '../../models/gridSlotsComponentsProps';
 
 export const useComponents = (
-  componentOverrides: GridComponentOverridesProp | undefined,
+  componentSlotsProp: GridSlotsComponent | undefined,
+  componentsProps: GridSlotsComponentsProps | undefined,
   apiRef: ApiRef,
-  gridRootRef: RootContainerRef,
 ) => {
-  const options = useGridSelector(apiRef, optionsSelector);
-  const rows = useGridSelector(apiRef, unorderedRowModelsSelector);
-  const columns = useGridSelector(apiRef, visibleColumnsSelector);
-  const pagination = useGridSelector(apiRef, paginationSelector);
+  const components: ApiRefComponentsProperty = React.useMemo(() => {
+    const mappedComponents = {
+      ColumnFilteredIcon:
+        (componentSlotsProp && componentSlotsProp.ColumnFilteredIcon) ||
+        DEFAULT_SLOTS_COMPONENTS.ColumnFilteredIcon,
+      ColumnMenuIcon:
+        (componentSlotsProp && componentSlotsProp.ColumnMenuIcon) ||
+        DEFAULT_SLOTS_COMPONENTS.ColumnMenuIcon,
+      ColumnResizeIcon:
+        (componentSlotsProp && componentSlotsProp.ColumnResizeIcon) ||
+        DEFAULT_SLOTS_COMPONENTS.ColumnResizeIcon,
+      ColumnSelectorIcon:
+        (componentSlotsProp && componentSlotsProp.ColumnSelectorIcon) ||
+        DEFAULT_SLOTS_COMPONENTS.ColumnSelectorIcon,
+      ColumnSortedAscendingIcon:
+        (componentSlotsProp && componentSlotsProp.ColumnSortedAscendingIcon) ||
+        DEFAULT_SLOTS_COMPONENTS.ColumnSortedAscendingIcon,
+      ColumnSortedDescendingIcon:
+        (componentSlotsProp && componentSlotsProp.ColumnSortedDescendingIcon) ||
+        DEFAULT_SLOTS_COMPONENTS.ColumnSortedDescendingIcon,
+      DensityComfortableIcon:
+        (componentSlotsProp && componentSlotsProp.DensityComfortableIcon) ||
+        DEFAULT_SLOTS_COMPONENTS.DensityComfortableIcon,
+      DensityCompactIcon:
+        (componentSlotsProp && componentSlotsProp.DensityCompactIcon) ||
+        DEFAULT_SLOTS_COMPONENTS.DensityCompactIcon,
+      DensityStandardIcon:
+        (componentSlotsProp && componentSlotsProp.DensityStandardIcon) ||
+        DEFAULT_SLOTS_COMPONENTS.DensityStandardIcon,
+      OpenFilterButtonIcon:
+        (componentSlotsProp && componentSlotsProp.OpenFilterButtonIcon) ||
+        DEFAULT_SLOTS_COMPONENTS.OpenFilterButtonIcon,
+      ColumnMenu:
+        (componentSlotsProp && componentSlotsProp.ColumnMenu) ||
+        DEFAULT_SLOTS_COMPONENTS.ColumnMenu,
+      ErrorOverlay:
+        (componentSlotsProp && componentSlotsProp.ErrorOverlay) ||
+        DEFAULT_SLOTS_COMPONENTS.ErrorOverlay,
+      Footer: (componentSlotsProp && componentSlotsProp.Footer) || DEFAULT_SLOTS_COMPONENTS.Footer,
+      Header: (componentSlotsProp && componentSlotsProp.Header) || DEFAULT_SLOTS_COMPONENTS.Header,
+      Toolbar: componentSlotsProp && componentSlotsProp.Toolbar,
+      PreferencesPanel:
+        (componentSlotsProp && componentSlotsProp.PreferencesPanel) ||
+        DEFAULT_SLOTS_COMPONENTS.PreferencesPanel,
+      LoadingOverlay:
+        (componentSlotsProp && componentSlotsProp.LoadingOverlay) ||
+        DEFAULT_SLOTS_COMPONENTS.LoadingOverlay,
+      NoRowsOverlay:
+        (componentSlotsProp && componentSlotsProp.NoRowsOverlay) ||
+        DEFAULT_SLOTS_COMPONENTS.NoRowsOverlay,
+      Pagination:
+        (componentSlotsProp && componentSlotsProp.Pagination) ||
+        DEFAULT_SLOTS_COMPONENTS.Pagination,
+      FilterPanel:
+        (componentSlotsProp && componentSlotsProp.FilterPanel) ||
+        DEFAULT_SLOTS_COMPONENTS.FilterPanel,
+      ColumnsPanel:
+        (componentSlotsProp && componentSlotsProp.ColumnsPanel) ||
+        DEFAULT_SLOTS_COMPONENTS.ColumnsPanel,
+      Panel: (componentSlotsProp && componentSlotsProp.Panel) || DEFAULT_SLOTS_COMPONENTS.Panel,
+    };
+    apiRef.current.components = mappedComponents;
+    return mappedComponents;
+  }, [apiRef, componentSlotsProp]);
 
-  const componentProps: ComponentProps = React.useMemo(
-    () => ({
-      pagination,
-      rows,
-      columns,
-      options,
-      api: apiRef,
-      rootElement: gridRootRef,
-    }),
-    [pagination, rows, columns, options, apiRef, gridRootRef],
-  );
+  apiRef.current.componentsProps = componentsProps;
 
-  const headerComponent = React.useMemo(
-    () =>
-      componentOverrides?.header
-        ? React.createElement(componentOverrides.header, componentProps)
-        : null,
-    [componentOverrides, componentProps],
-  );
-
-  const footerComponent = React.useMemo(
-    () =>
-      componentOverrides?.footer
-        ? React.createElement(componentOverrides.footer, componentProps)
-        : null,
-    [componentOverrides, componentProps],
-  );
-
-  const loadingComponent = React.useMemo(
-    () =>
-      componentOverrides?.loadingOverlay ? (
-        React.createElement(componentOverrides.loadingOverlay, componentProps)
-      ) : (
-        <LoadingOverlay />
-      ),
-    [componentOverrides, componentProps],
-  );
-  const noRowsComponent = React.useMemo(
-    () =>
-      componentOverrides?.noRowsOverlay ? (
-        React.createElement(componentOverrides.noRowsOverlay, componentProps)
-      ) : (
-        <NoRowMessage />
-      ),
-    [componentOverrides, componentProps],
-  );
-
-  const paginationComponent = React.useMemo(
-    () =>
-      componentOverrides?.pagination
-        ? React.createElement(componentOverrides.pagination, componentProps)
-        : null,
-    [componentOverrides, componentProps],
-  );
-
-  const renderError = React.useCallback(
-    (props) => {
-      const ErrorOverlay = componentOverrides?.errorOverlay || ErrorMessage;
-      return <ErrorOverlay {...componentProps} {...props} />;
-    },
-    [componentOverrides?.errorOverlay, componentProps],
-  );
-
-  return {
-    headerComponent,
-    footerComponent,
-    loadingComponent,
-    noRowsComponent,
-    paginationComponent,
-    renderError,
-  };
+  return components;
 };

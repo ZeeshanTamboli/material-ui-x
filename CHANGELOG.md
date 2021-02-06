@@ -3,6 +3,165 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0-alpha.19](https://github.com/mui-org/material-ui-x/compare/v4.0.0-alpha.18...v4.0.0-alpha.19)
+
+###### _Feb 5, 2021_
+
+Big thanks to the 5 contributors who made this release possible. Here are some highlights ✨:
+
+- 🎁 Add getRowId prop (#972) @dtassone
+- 🚀 Add streaming delete row api (#980) @dtassone
+- 💅 Fix autoHeight (#940) @oliviertassinari
+- 🙌 Enable the data grid to work under strict mode (#933) @dtassone
+- ⚡️ Add component slots for toolbar and preference panel (#971) @DanailH
+- 🐛 Polish existing features, fix 9 issues.
+
+### @material-ui/x-grid@v4.0.0-alpha.19 / @material-ui/data-grid@v4.0.0-alpha.19
+
+- [DataGrid] Add component slots for toolbar and preference panel (#971) @DanailH
+- [DataGrid] Add getRowId prop (#972) @dtassone
+- [DataGrid] Add streaming delete row api (#980) @dtassone
+- [DataGrid] Fix autoHeight (#940) @oliviertassinari
+- [DataGrid] Fix column reorder instability (#950) @dtassone
+- [DataGrid] Fix footer visual regression (#932) @dtassone
+- [DataGrid] Fix strict mode issue with apiRef (#933) @dtassone
+- [DataGrid] Work on the accessibility of the column menu (#900) @zj9495
+- [DataGrid] Fix timing guarentee (#981) @oliviertassinari
+- [DataGrid] Fix unstable footer height (#937) @oliviertassinari
+- [DataGrid] Fix usage of the prop-types API (#955) @oliviertassinari
+- [DataGrid] Fix duplicate aria-label (#953) @oliviertassinari
+
+### docs
+
+- [docs] Add sorting page in datagrid docs (#931) @dtassone
+- [docs] Api page update with component slots (#969) @dtassone
+- [docs] Catch leaks ahread of time (#979) @oliviertassinari
+- [docs] Fix immutability with filter operator demos (#975) @dtassone
+- [docs] Improve docs of DataGrid about filter operators (#973) @SaskiaKeil
+- [docs] Improve the docs for the filtering feature (#945) @dtassone
+
+### core
+
+- [core] Add 'Order id 💳' section in issues (#952) @oliviertassinari
+- [core] Improve prop-types handling (#978) @oliviertassinari
+- [core] Investigate bundle size (#954) @oliviertassinari
+
+## [4.0.0-alpha.18](https://github.com/mui-org/material-ui-x/compare/v4.0.0-alpha.17...v4.0.0-alpha.18)
+
+###### _Jan 26, 2021_
+
+Big thanks to the 5 contributors who made this release possible. Here are some highlights ✨:
+
+- 🎁 Add support for Material-UI v5-alpha (#855) @DanailH.
+  The data grid supports Material-UI v4 and v5. We aim to retain the support for v4 as long as v5 hasn't reached the beta phase.
+- 💅 Update the customization API to be closer to Material-UI v5.
+  The data grid accepts two props: `components` and `componentsProps`.
+  The first prop allows to swapping specific components used in slots the grid, like the checkboxes.
+  The second one allows providing extra props to each slot. It avoids the need for using the React context to access information from outside the data grid.
+
+  See the [RFC](https://github.com/mui-org/material-ui/issues/21453) for more details.
+- 🐛 Polish existing features, fix 3 issues.
+
+### @material-ui/x-grid@v4.0.0-alpha.18 / @material-ui/data-grid@v4.0.0-alpha.18
+
+#### Breaking changes
+
+- [DataGrid] Implement customization pattern of Material-UI v5 (#851, #879) @dtassone
+
+  - Capitalize the keys of the `components` prop. This change aims to bring consistency with the customization pattern of Material-UI v5:
+
+  ```diff
+  <DataGrid
+    components={{
+  -   noRowsOverlay: CustomNoRowsOverlay,
+  +   NoRowOverlay: CustomNoRowsOverlay,
+    }}
+  />
+  ```
+
+  - Move all the icon components overrides in the `components` prop. And added the suffix 'Icon' on each icon component. This change aims to bring consistency with the customization pattern of Material-UI v5:
+
+  ```diff
+  <DataGrid
+  - icons: {{
+  -   ColumnSortedAscending: SortedAscending,
+  - }},
+  + components={{
+  +   ColumnSortedAscendingIcon: SortedAscending,
+  + }}
+  />
+  ```
+
+  - Change the props provided to the component of the `components` prop. Expose the whole state instead of an arbitrary set of props:
+
+  ```diff
+  -function CustomPagination(props: ComponentProps) {
+  -  const { pagination, api } = props;
+  +function CustomPagination(props: BaseComponentProps) {
+  +  const { state, api } = props;
+
+     return (
+       <Pagination
+  -      page={pagination.page}
+  -      count={pagination.pageCount}
+  +      page={state.pagination.page}
+  +      count={state.pagination.pageCount}
+
+  // ...
+
+  <DataGrid components={{ Pagination: CustomPagination }} />
+  ```
+
+#### Changes
+
+- [DataGrid] Add customisation on panels (#890) @dtassone
+- [DataGrid] Add support for Material-UI v5-alpha (#855) @DanailH
+- [DataGrid] Fix footer count not shown on small screen (#899) @mnajdova
+- [DataGrid] Fix column selector crash when hiding columns (#875) @DanailH
+- [DataGrid] Fix <kbd>Shift</kbd> + <kbd>Space</kbd> keyboard regression to select row (#897) @dtassone
+
+### docs
+
+- [docs] Fix imports for x-grid-data-generator (#887) @DanailH
+- [docs] Skip download of playwright for docs @oliviertassinari
+- [CHANGELOG] Polish @oliviertassinari
+
+### core
+
+- [core] Automation for duplicate issues (#878) @oliviertassinari
+- [core] Replace commander with yargs (#872) @dependabot-preview
+- [core] Update monorepo (#884) @oliviertassinari
+
+## [4.0.0-alpha.17](https://github.com/mui-org/material-ui-x/compare/v4.0.0-alpha.15...v4.0.0-alpha.17)
+
+###### _Jan 14, 2021_
+
+Big thanks to the 4 contributors who made this release possible. Here are some highlights ✨:
+
+- 🎛 Add support for Column selector (#837) @DanailH @dtassone.
+  The feature can be triggered from the toolbar or the column menu. Check [the documentation](https://material-ui.com/components/data-grid/columns/#column-selector).
+
+  ![column selector](https://user-images.githubusercontent.com/3165635/104791267-6ff77300-579a-11eb-9338-11a8fde83258.gif)
+
+- 🐛 A focus on fixing regressions from previous releases refactoring and bugs.
+
+### @material-ui/x-grid@v4.0.0-alpha.17 / @material-ui/data-grid@v4.0.0-alpha.17
+
+- [DataGrid] Fix `onPageChange` firing too often (#838) @dtassone
+- [DataGrid] Fix behavior of the `hideFooter` prop (#846) @dtassone
+- [DataGrid] Fix the display logic for "error messages" (#843) @dtassone
+- [DataGrid] Fix wrong initial sort order (#841) @dtassone
+- [DataGrid] Remove tslib dependency from packages (#832) @oliviertassinari
+
+### Docs
+
+- [docs] Add docs for data grid column selector (#837) @DanailH
+- [docs] Clarify feature split between pro and premium (#779) @oliviertassinari
+
+### Core
+
+- [core] Add tests for Column selector feature (#845) @DanailH
+
 ## [4.0.0-alpha.15](https://github.com/mui-org/material-ui-x/compare/v4.0.0-alpha.14...v4.0.0-alpha.15)
 
 ###### _Jan 7, 2021_

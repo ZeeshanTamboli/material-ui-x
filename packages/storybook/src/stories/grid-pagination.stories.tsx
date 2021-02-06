@@ -120,18 +120,18 @@ export function PaginationApiTests() {
       </div>
       <div className="grid-container">
         <XGrid
+          apiRef={apiRef}
           rows={data.rows}
           columns={data.columns}
-          apiRef={apiRef}
           pagination
           pageSize={myPageSize}
           autoPageSize={autosize}
           components={{
-            pagination: ({ pagination }) => (
+            Pagination: ({ state }) => (
               <Pagination
                 className="my-custom-pagination"
-                page={pagination.page}
-                count={pagination.pageCount}
+                page={state.pagination.page}
+                count={state.pagination.pageCount}
                 onChange={(e, value) => apiRef.current.setPage(value)}
               />
             ),

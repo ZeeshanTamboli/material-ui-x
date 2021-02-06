@@ -1,13 +1,10 @@
 import * as React from 'react';
+import { DEFAULT_LOCALE_TEXT } from '../../constants/localeTextConstants';
 import { GridComponentProps, GridOptionsProp } from '../../GridComponentProps';
 import { ApiRef } from '../../models/api/apiRef';
 import { DEFAULT_GRID_OPTIONS, GridOptions } from '../../models/gridOptions';
-import { mergeOptions } from '../../utils/mergeOptions';
-import { GridState } from '../features/core/gridState';
+import { mergeOptions } from '../../utils/mergeUtils';
 import { useGridReducer } from '../features/core/useGridReducer';
-import { DEFAULT_LOCALE_TEXT } from '../../constants/localeTextConstants';
-
-export const optionsSelector = (state: GridState) => state.options;
 
 // REDUCER
 export function optionsReducer(
@@ -52,7 +49,6 @@ export function useOptionsProp(apiRef: ApiRef, props: GridComponentProps): GridO
       hideFooterRowCount: props.hideFooterRowCount,
       hideFooterSelectedRowCount: props.hideFooterSelectedRowCount,
       showToolbar: props.showToolbar,
-      icons: props.icons,
       logLevel: props.logLevel,
       onCellClick: props.onCellClick,
       onCellHover: props.onCellHover,
@@ -109,7 +105,6 @@ export function useOptionsProp(apiRef: ApiRef, props: GridComponentProps): GridO
       props.hideFooterRowCount,
       props.hideFooterSelectedRowCount,
       props.showToolbar,
-      props.icons,
       props.logLevel,
       props.onCellClick,
       props.onCellHover,

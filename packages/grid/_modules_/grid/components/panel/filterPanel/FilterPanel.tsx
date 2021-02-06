@@ -2,10 +2,13 @@ import * as React from 'react';
 import Button from '@material-ui/core/Button';
 import { useGridSelector } from '../../../hooks/features/core/useGridSelector';
 import { useGridState } from '../../../hooks/features/core/useGridState';
-import { optionsSelector } from '../../../hooks/utils/useOptionsProp';
+import { optionsSelector } from '../../../hooks/utils/optionsSelector';
 import { FilterItem, LinkOperator } from '../../../models/filterItem';
 import { ApiContext } from '../../api-context';
 import { AddIcon } from '../../icons/index';
+import { PanelContent } from '../PanelContent';
+import { PanelFooter } from '../PanelFooter';
+import { PanelWrapper } from '../PanelWrapper';
 import { FilterForm } from './FilterForm';
 
 export function FilterPanel() {
@@ -49,8 +52,8 @@ export function FilterPanel() {
   }, [addNewFilter, gridState.filter.items.length]);
 
   return (
-    <React.Fragment>
-      <div className="MuiDataGridPanel-container">
+    <PanelWrapper>
+      <PanelContent>
         {gridState.filter.items.map((item, index) => (
           <FilterForm
             key={item.id}
@@ -64,14 +67,14 @@ export function FilterPanel() {
             applyMultiFilterOperatorChanges={applyFilterLinkOperator}
           />
         ))}
-      </div>
+      </PanelContent>
       {!disableMultipleColumnsFiltering && (
-        <div className="MuiDataGridPanel-footer">
+        <PanelFooter>
           <Button onClick={addNewFilter} startIcon={<AddIcon />} color="primary">
             {apiRef!.current.getLocaleText('filterPanelAddFilter')}
           </Button>
-        </div>
+        </PanelFooter>
       )}
-    </React.Fragment>
+    </PanelWrapper>
   );
 }

@@ -1,24 +1,25 @@
 import * as React from 'react';
+import MenuList from '@material-ui/core/MenuList';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import { useIcons } from '../../hooks/utils/useIcons';
+import { densityValueSelector } from '../../hooks/features/density/densitySelector';
+import { Density, DensityTypes } from '../../models/density';
 import { ApiContext } from '../api-context';
-import { DensityTypes, Density } from '../../models/gridOptions';
 import { useGridSelector } from '../../hooks/features/core/useGridSelector';
+import { optionsSelector } from '../../hooks/utils/optionsSelector';
 import { DensityOption } from '../../models/api/densityApi';
-import { densityValueSelector } from '../../hooks/features/density';
 import { GridMenu } from '../menu/GridMenu';
 
 export function DensitySelector() {
   const apiRef = React.useContext(ApiContext);
+  const options = useGridSelector(apiRef, optionsSelector);
   const densityValue = useGridSelector(apiRef, densityValueSelector);
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const icons = useIcons();
 
-  const DensityCompactIcon = icons!.DensityCompact!;
-  const DensityStandardIcon = icons!.DensityStandard!;
-  const DensityComfortableIcon = icons!.DensityComfortable!;
+  const DensityCompactIcon = apiRef!.current.components!.DensityCompactIcon!;
+  const DensityStandardIcon = apiRef!.current.components!.DensityStandardIcon!;
+  const DensityComfortableIcon = apiRef!.current.components!.DensityComfortableIcon!;
 
   const DensityOptions: Array<DensityOption> = [
     {
@@ -63,6 +64,11 @@ export function DensitySelector() {
     }
   };
 
+  // Disable the button if the corresponding is disabled
+  if (options.disableColumnFilter) {
+    return null;
+  }
+
   const renderDensityOptions: Array<React.ReactElement> = DensityOptions.map((option, index) => (
     <MenuItem
       key={index}
@@ -90,10 +96,11 @@ export function DensitySelector() {
         open={Boolean(anchorEl)}
         target={anchorEl}
         onClickAway={handleDensitySelectorClose}
-        onKeyDown={handleListKeyDown}
         position="bottom-start"
       >
-        {renderDensityOptions}
+        <MenuList id="menu-list-grow" onKeyDown={handleListKeyDown}>
+          {renderDensityOptions}
+        </MenuList>
       </GridMenu>
     </React.Fragment>
   );

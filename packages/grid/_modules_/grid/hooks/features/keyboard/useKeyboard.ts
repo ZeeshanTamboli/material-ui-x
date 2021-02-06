@@ -22,13 +22,14 @@ import {
   isPageKeys,
   isSpaceKey,
 } from '../../../utils/keyboardUtils';
+import { optionsSelector } from '../../utils/optionsSelector';
 import { visibleColumnsLengthSelector } from '../columns/columnsSelector';
+import { GridState } from '../core/gridState';
 import { useGridSelector } from '../core/useGridSelector';
 import { useGridState } from '../core/useGridState';
 import { paginationSelector } from '../pagination/paginationSelector';
 import { rowCountSelector } from '../rows/rowsSelector';
 import { useLogger } from '../../utils/useLogger';
-import { optionsSelector } from '../../utils/useOptionsProp';
 import { useApiEventHandler } from '../../root/useApiEventHandler';
 import { selectionStateSelector } from '../selection/selectionSelector';
 import { KeyboardState } from './keyboardState';
@@ -76,7 +77,7 @@ export const useKeyboard = (gridRootRef: React.RefObject<HTMLDivElement>, apiRef
   );
 
   const navigateCells = React.useCallback(
-    (code: string, isCtrlPressed: boolean) => {
+    (key: string, isCtrlPressed: boolean) => {
       const cellEl = findParentElementFromClassName(
         document.activeElement as HTMLDivElement,
         CELL_CSS_CLASS,
@@ -90,13 +91,13 @@ export const useKeyboard = (gridRootRef: React.RefObject<HTMLDivElement>, apiRef
         : totalRowCount;
 
       let nextCellIndexes: CellIndexCoordinates;
-      if (isArrowKeys(code)) {
-        nextCellIndexes = getNextCellIndexes(code, {
+      if (isArrowKeys(key)) {
+        nextCellIndexes = getNextCellIndexes(key, {
           colIndex: currentColIndex,
           rowIndex: currentRowIndex,
         });
-      } else if (isHomeOrEndKeys(code)) {
-        const colIdx = code === 'Home' ? 0 : colCount - 1;
+      } else if (isHomeOrEndKeys(key)) {
+        const colIdx = key === 'Home' ? 0 : colCount - 1;
 
         if (!isCtrlPressed) {
           // we go to the current row, first col, or last col!
@@ -111,10 +112,10 @@ export const useKeyboard = (gridRootRef: React.RefObject<HTMLDivElement>, apiRef
           }
           nextCellIndexes = { colIndex: colIdx, rowIndex };
         }
-      } else if (isPageKeys(code) || isSpaceKey(code)) {
+      } else if (isPageKeys(key) || isSpaceKey(key)) {
         const nextRowIndex =
           currentRowIndex +
-          (code.indexOf('Down') > -1 || isSpaceKey(code)
+          (key.indexOf('Down') > -1 || isSpaceKey(key)
             ? containerSizes!.viewportPageSize
             : -1 * containerSizes!.viewportPageSize);
         nextCellIndexes = { colIndex: currentColIndex, rowIndex: nextRowIndex };
@@ -167,7 +168,7 @@ export const useKeyboard = (gridRootRef: React.RefObject<HTMLDivElement>, apiRef
   }, [apiRef]);
 
   const expandSelection = React.useCallback(
-    (code: string) => {
+    (key: string) => {
       const rowEl = findParentElementFromClassName(
         document.activeElement as HTMLDivElement,
         ROW_CSS_CLASS,
@@ -190,7 +191,7 @@ export const useKeyboard = (gridRootRef: React.RefObject<HTMLDivElement>, apiRef
         selectionFromRowIndex = selectedRowsIndex[diffWithCurrentIndex.indexOf(minIndex)];
       }
 
-      const nextCellIndexes = navigateCells(code, false);
+      const nextCellIndexes = navigateCells(key, false);
       // We select the rows in between
       const rowIds = Array(Math.abs(nextCellIndexes.rowIndex - selectionFromRowIndex) + 1)
         .fill(
@@ -283,10 +284,15 @@ export const useKeyboard = (gridRootRef: React.RefObject<HTMLDivElement>, apiRef
     [logger, onMultipleKeyChange],
   );
 
-  const onFocusOutHandler = React.useCallback(() => {
-    logger.debug('Grid lost focus, releasing key press');
-    onMultipleKeyChange(false);
-  }, [logger, onMultipleKeyChange]);
+  const onFocusOutHandler = React.useCallback(
+    (args) => {
+      logger.debug('Grid lost focus, releasing key press', args);
+      if (apiRef.current.getState<GridState>().keyboard.isMultipleKeyPressed) {
+        onMultipleKeyChange(false);
+      }
+    },
+    [apiRef, logger, onMultipleKeyChange],
+  );
 
   useApiEventHandler(apiRef, KEYDOWN, onKeyDownHandler);
   useApiEventHandler(apiRef, KEYUP, onKeyUpHandler);

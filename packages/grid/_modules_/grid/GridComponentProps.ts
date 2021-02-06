@@ -1,10 +1,11 @@
 import { GridState } from './hooks/features/core/gridState';
 import { ApiRef } from './models/api/apiRef';
 import { Columns } from './models/colDef/colDef';
-import { GridComponentOverridesProp } from './models/gridComponentOverridesProp';
+import { GridSlotsComponent } from './models/gridSlotsComponent';
 import { GridOptions } from './models/gridOptions';
+import { GridSlotsComponentsProps } from './models/gridSlotsComponentsProps';
 import { StateChangeParams } from './models/params/stateChangeParams';
-import { RowsProp } from './models/rows';
+import { RowIdGetter, RowsProp } from './models/rows';
 
 /**
  * Partial set of [[GridOptions]].
@@ -26,7 +27,11 @@ export interface GridComponentProps extends GridOptionsProp {
   /**
    * Overrideable components.
    */
-  components?: GridComponentOverridesProp;
+  components?: GridSlotsComponent;
+  /**
+   * Overrideable components props dynamic passed to the component at rendering.
+   */
+  componentsProps?: GridSlotsComponentsProps;
   /**
    * @ignore
    */
@@ -59,4 +64,8 @@ export interface GridComponentProps extends GridOptionsProp {
    * Set the whole state of the grid.
    */
   state?: Partial<GridState>;
+  /**
+   * Return the id of a given [[RowData]].
+   */
+  getRowId?: RowIdGetter;
 }

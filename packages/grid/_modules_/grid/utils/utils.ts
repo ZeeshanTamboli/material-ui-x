@@ -1,6 +1,7 @@
-import isEqual from '../lib/lodash/isEqual';
+import * as styles from '@material-ui/core/styles';
+import isDeepEqual from '../lib/lodash/isDeepEqual';
 
-export { isEqual };
+export { isDeepEqual };
 
 export interface DebouncedFunction extends Function {
   cancel: () => void;
@@ -29,6 +30,21 @@ export function isFunction(value: any): value is Function {
 
 export function isObject(value: any): value is Record<string, any> {
   return typeof value === 'object';
+}
+
+export function getThemePaletteMode(palette: any): string {
+  return palette.type || palette.mode;
+}
+
+export function isMuiV5(): boolean {
+  return 'alpha' in styles;
+}
+
+export function muiStyleAlpha(color: string, value: number): string {
+  if (isMuiV5()) {
+    return (styles as any)?.alpha(color, value);
+  }
+  return (styles as any)?.fade(color, value);
 }
 
 export function localStorageAvailable() {

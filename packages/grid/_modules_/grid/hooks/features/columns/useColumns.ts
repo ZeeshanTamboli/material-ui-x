@@ -11,10 +11,12 @@ import {
   InternalColumns,
 } from '../../../models/colDef/colDef';
 import { ColumnTypesRecord } from '../../../models/colDef/colTypeDef';
+import { getDefaultColumnTypes } from '../../../models/colDef/defaultColumnTypes';
 import { getColDef } from '../../../models/colDef/getColDef';
+import { mergeColTypes } from '../../../utils/mergeUtils';
 import { useApiMethod } from '../../root/useApiMethod';
+import { optionsSelector } from '../../utils/optionsSelector';
 import { Logger, useLogger } from '../../utils/useLogger';
-import { optionsSelector } from '../../utils/useOptionsProp';
 import { GridState } from '../core/gridState';
 import { useGridSelector } from '../core/useGridSelector';
 import { useGridState } from '../core/useGridState';
@@ -56,8 +58,8 @@ function hydrateColumns(
   logger: Logger,
 ): Columns {
   logger.debug('Hydrating Columns with default definitions');
-
-  const extendedColumns = columns.map((c) => ({ ...getColDef(columnTypes, c.type), ...c }));
+  const mergedColTypes = mergeColTypes(getDefaultColumnTypes(), columnTypes);
+  const extendedColumns = columns.map((c) => ({ ...getColDef(mergedColTypes, c.type), ...c }));
 
   if (withCheckboxSelection) {
     return [checkboxSelectionColDef, ...extendedColumns];

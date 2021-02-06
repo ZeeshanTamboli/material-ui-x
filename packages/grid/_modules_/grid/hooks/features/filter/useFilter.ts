@@ -12,11 +12,11 @@ import { FilterItem, LinkOperator } from '../../../models/filterItem';
 import { FilterModelParams } from '../../../models/params/filterModelParams';
 import { RowsProp } from '../../../models/rows';
 import { buildCellParams } from '../../../utils/paramsUtils';
-import { isEqual } from '../../../utils/utils';
+import { isDeepEqual } from '../../../utils/utils';
 import { useApiEventHandler } from '../../root/useApiEventHandler';
 import { useApiMethod } from '../../root/useApiMethod';
+import { optionsSelector } from '../../utils/optionsSelector';
 import { useLogger } from '../../utils/useLogger';
-import { optionsSelector } from '../../utils/useOptionsProp';
 import { filterableColumnsIdsSelector } from '../columns/columnsSelector';
 import { useGridSelector } from '../core/useGridSelector';
 import { useGridState } from '../core/useGridState';
@@ -65,11 +65,17 @@ export const useFilter = (apiRef: ApiRef, rowsProp: RowsProp): void => {
       const filterOperators = column.filterOperators;
 
       if (!filterOperators?.length) {
-        throw new Error(`No Filter operator found for column ${column.field}`);
+        throw new Error(`Material-UI: No filter operators found for column '${column.field}'.`);
       }
       const filterOperator = filterOperators.find(
         (operator) => operator.value === filterItem.operatorValue,
       )!;
+
+      if (!filterOperator) {
+        throw new Error(
+          `Material-UI: No filter operator found for column '${column.field}' and operator value '${filterItem.operatorValue}'.`,
+        );
+      }
 
       const applyFilterOnRow = filterOperator.getApplyFilterFn(filterItem, column)!;
 
@@ -138,7 +144,7 @@ export const useFilter = (apiRef: ApiRef, rowsProp: RowsProp): void => {
         const newItem = { ...item };
         const itemIndex = items.findIndex((filterItem) => filterItem.id === newItem.id);
 
-        if (items.length === 1 && isEqual(items[0], {})) {
+        if (items.length === 1 && isDeepEqual(items[0], {})) {
           // we replace the first filter as it's empty
           items[0] = newItem;
         } else if (itemIndex === -1) {
@@ -287,7 +293,7 @@ export const useFilter = (apiRef: ApiRef, rowsProp: RowsProp): void => {
   React.useEffect(() => {
     const filterModel = options.filterModel;
     const oldFilterModel = apiRef.current.state.filter;
-    if (filterModel && filterModel.items.length > 0 && !isEqual(filterModel, oldFilterModel)) {
+    if (filterModel && filterModel.items.length > 0 && !isDeepEqual(filterModel, oldFilterModel)) {
       logger.debug('filterModel prop changed, applying filters');
       // we use apiRef to avoid watching setFilterModel as it will trigger an update on every state change
       apiRef.current.setFilterModel(filterModel);
